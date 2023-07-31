@@ -2,7 +2,7 @@
 import argparse
 import sys
 sys.path.insert(0, './scripts/')
-from scripts import FastCGI, MySQL, PostgreSQL, DumpMemcached, PHPMemcached, PyMemcached, RbMemcached, Redis, SMTP, Zabbix
+from scripts import FastCGI, MySQL, PostgreSQL, DumpMemcached, PHPMemcached, PyMemcached, RbMemcached, Redis, SMTP, Zabbix, PlainText
 
 
 class colors:
@@ -25,7 +25,9 @@ def main():
                              "pymemcache,\n"
                              "rbmemcache,\n"
                              "phpmemcache,\n"
-                             "dmpmemcache")
+                             "dmpmemcache,\n"
+                             "plaintext")
+    parser.add_argument("--filename", help="filename for plaintext exploit")
     args = parser.parse_args()
     print(colors.green + """
       ________              .__                                ________  
@@ -60,6 +62,11 @@ def main():
         RbMemcached.RbMemcached()
     elif(args.exploit=="pymemcache"):
         PyMemcached.PyMemcached()
+    elif(args.exploit=="plaintext"):
+        if (not args.filename):
+            print("you need add file name to this payload")
+            sys.exit(1)
+        PlainText.PlainText(args.filename)
     else:
         print(parser.print_help())
 
