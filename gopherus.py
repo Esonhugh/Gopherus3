@@ -28,6 +28,9 @@ def main():
     parser.add_argument("--dump", help="dump generator status", action="store_true")
     args, unknown = parser.parse_known_args()
 
+    with open("banner", "r") as banner:
+        print("\033[96m",banner.read(), "\033[0m")
+
     if(args.verbose == 0):
         log.basicConfig(level=log.INFO)
     else:
