@@ -26,10 +26,12 @@ def main():
     parser.add_argument("--port", help="gopher port", default=0)
     parser.add_argument("-v","--verbose", help="verbose mode", action="count", default=0)
     parser.add_argument("--dump", help="dump generator status", action="store_true")
+    parser.add_argument("--slient", help="slient mode, stdout will only contain url", action="store_true")
     args, unknown = parser.parse_known_args()
 
     with open("banner", "r") as banner:
-        print("\033[96m",banner.read(), "\033[0m")
+        if not args.slient:
+            print("\033[96m",banner.read(), "\033[0m")
 
     if(args.verbose == 0):
         log.basicConfig(level=log.INFO)
@@ -55,10 +57,13 @@ def main():
         sys.exit(0)
 
     final_payload = exploit.generate()
-
-    print("\033[93m" +"\nYour gopher link is ready to do SSRF: \n" + "\033[0m")
-    print("\033[04m" + final_payload + "\033[0m")
-    print("\n" + "\033[41m" +"-----------Made-by-Skyworship-----------"+"\033[0m")
+    if args.slient:
+        print(final_payload)
+        sys.exit(0)
+    else:
+        print("\033[93m" +"\nYour gopher link is ready to do SSRF: \n" + "\033[0m")
+        print("\033[04m" + final_payload + "\033[0m")
+        print("\n" + "\033[41m" +"-----------Made-by-Skyworship-----------"+"\033[0m")
 
     exploit.tailcall()
 if __name__ == "__main__":
