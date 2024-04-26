@@ -4,7 +4,16 @@ information you can get a blog on the same [Blog on Gopherus](https://spyclub.te
 
 ## Note :
 
+> From [Antabuse-does-something](https://github.com/Antabuse-does-something/Gopherus)
+
 This repo is a fork from the Original Tool but I have updated the code from python2 to python3 (because python2 is dead) and added a new feature to select the port for the reverse shell(Redis).
+
+> Esonhugh
+
+This repo is a fork merged Antabuse-does-something's changes and completelt refactor the code to make it more readable and maintainable.
+
+Enhanced cli terminal experience with the use of argparse and added other exploit as modules.
+
 
 ## About
 This tool can generate payload for following:
@@ -33,16 +42,17 @@ sudo ./install.sh
 |--------------------------|--------------------------------|
 |  gopherus --help         |          Help                  |
 |  gopherus --exploit      |    Arguments can be  :         |
-|                          |    --exploit mysql             |
-|			   |    --exploit postgresql	    |
-|                          |    --exploit fastcgi           |
-|                          |    --exploit redis             |
-|                          |    --exploit zabbix            |
-|                          |    --exploit pymemcache        |
-|                          |    --exploit rbmemcache        |
-|                          |    --exploit phpmemcache       |
-|                          |    --exploit dmpmemcache       |
-|                          |    --exploit smtp              |
+|                          |    --exploit mysql -h            |
+|                          |    --exploit postgresql -h	    |
+|                          |    --exploit fastcgi -h      |
+|                          |    --exploit redis -h             |
+|                          |    --exploit zabbix -h           |
+|                          |    --exploit pymemcache -h       |
+|                          |    --exploit rbmemcache -h       |
+|                          |    --exploit phpmemcache -h      |
+|                          |    --exploit dmpmemcache -h      |
+|                          |    --exploit smtp -h             |
+
 ## Examples
 * MySQL:  If the user is not protected with password you can dump his database and also you can put malicious files in his system.
 ```bash
@@ -91,6 +101,7 @@ gopherus --exploit dmpmemcache
 ```bash
 gopherus --exploit smtp
 ```
+
 ## Screenshots
 ![image](./images/tool2.1.png)
 ![image](./images/tool2.0.png)
@@ -103,6 +114,13 @@ Tarunkant Gupta (SpyD3r)
 * Email:  tarunkant05@gmail.com
 * Twitter:  https://twitter.com/TarunkantG
 * Linkedin: https://linkedin.com/in/tarunkant-g-215830129/
+
+Antabuse-does-something
+* Github: https://github.com/Antabuse-does-something
+
+Esonhugh
+* Github: https://github.com/esonhugh
+* Twitter: https://twitter.com/@Skyworship2
 
 ## Reference
 * http://legalhackers.com/advisories/vBulletin-SSRF-Vulnerability-Exploit.txt  
