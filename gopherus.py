@@ -2,6 +2,7 @@
 import argparse
 import sys
 from module import DumpMemcached, FastCGI, MySQL, PHPMemcached, PlainText, PostgreSQL, PyMemcached, Redis, RbMemcached, SMTP, Zabbix
+from piper import LineN, LineRN, EndWith00, Default
 import logging as log
 
 class_map = {
@@ -18,6 +19,13 @@ class_map = {
     "zabbix": Zabbix.Zabbix
 }
 
+piper_map = {
+    "line-n": LineN,
+    "line-rn": LineRN,
+    "end-with-00": EndWith00,
+    "default": Default
+}
+
 def main():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--exploit",
@@ -27,6 +35,7 @@ def main():
     parser.add_argument("-v","--verbose", help="verbose mode", action="count", default=0)
     parser.add_argument("--dump", help="dump generator status", action="store_true")
     parser.add_argument("--slient", help="slient mode, stdout will only contain url", action="store_true")
+    parser.add_argument("--post", help="post processor type: line-n is \\n line-rn is \r\n end-with-00 is auto append 00 at End", choices=["line-n", "line-rn", "end-with-00"], default="line-n")
     args, unknown = parser.parse_known_args()
 
     with open("banner", "r") as banner:
@@ -56,7 +65,12 @@ def main():
         exploit.debug_dump()
         sys.exit(0)
 
-    final_payload = exploit.generate()
+    if args.post :
+        pipe_parser = piper_map[args.post]
+    else:
+        pipe_parser = Default
+
+    final_payload = pipe_parser().pipe(exploit.generate())
     if args.slient:
         print(final_payload)
         sys.exit(0)
