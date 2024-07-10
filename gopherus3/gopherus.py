@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import sys
-from module import DumpMemcached, FastCGI, MySQL, PHPMemcached, PlainText, PostgreSQL, PyMemcached, Redis, RbMemcached, SMTP, Zabbix
-from piper import LineN, LineRN, EndWith00, Default
+from .module import DumpMemcached, FastCGI, MySQL, PHPMemcached, PlainText, PostgreSQL, PyMemcached, Redis, RbMemcached, SMTP, Zabbix
+from .piper import LineN, LineRN, EndWith00, Default
 import logging as log
 
 class_map = {
