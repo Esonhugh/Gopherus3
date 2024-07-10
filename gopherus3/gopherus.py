@@ -38,9 +38,10 @@ def main():
     parser.add_argument("--post", help="post processor type: line-n is \\n line-rn is \r\n end-with-00 is auto append 00 at End", choices=["line-n", "line-rn", "end-with-00"], default="line-n")
     args, unknown = parser.parse_known_args()
 
-    with open("banner", "r") as banner:
-        if not args.slient:
-            print("\033[96m",banner.read(), "\033[0m")
+    if not args.slient:
+        bannerstring = "ICAgICAgX19fX19fX18gICAgICAgICAgICAgIC5fXyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgX19fX19fX18gIAogICAgIC8gIF9fX19fLyAgX19fXyBfX19fX18gfCAgfF9fICAgX19fX19fX19fX18gX18gX18gIF9fX19fXyBcX19fX18gIFwgCiAgICAvICAgXCAgX19fIC8gIF8gXFxfX19fIFx8ICB8ICBcXy8gX18gXF8gIF9fIFwgIHwgIFwvICBfX18vICAgXyhfXyAgPCAKICAgIFwgICAgXF9cICAoICA8Xz4gKSAgfF8+ID4gICBZICBcICBfX18vfCAgfCBcLyAgfCAgL1xfX18gXCAgIC8gICAgICAgXAogICAgIFxfX19fX18gIC9cX19fXy98ICAgX18vfF9fX3wgIC9cX19fICA+X198ICB8X19fXy8vX19fXyAgPiAvX19fX19fICAvCiAgICAgICAgICAgIFwvICAgICAgIHxfX3wgICAgICAgIFwvICAgICBcLyAgICAgICAgICAgICAgICAgXC8gICAgICAgICBcLyAKCiA="
+        from base64 import b64decode
+        print("\033[96m",b64decode(bannerstring).decode(), "\033[0m") 
 
     if(args.verbose == 0):
         log.basicConfig(level=log.INFO)
