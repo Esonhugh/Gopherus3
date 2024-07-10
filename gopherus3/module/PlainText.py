@@ -1,4 +1,5 @@
 from .base import *
+import sys
 
 class PlainText(GENERATOR):
     requirement = ["filename", "mode"]
@@ -29,6 +30,9 @@ class PlainText(GENERATOR):
 
 def readfile(filename):
     payload = ''
-    with open(filename, 'r') as f:
-        payload = f.read()
+    if filename == "-":
+        payload = sys.stdin.read()
+    else:
+        with open(filename, 'r') as f:
+            payload = f.read()
     return payload
