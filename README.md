@@ -39,14 +39,6 @@ This tool can generate payload for following:
 6.  Zabbix    (Port-10050)
 7.  SMTP      (Port-25)
 
-## Installation
-``` bash
-chmod +x install.sh
-```
-```bash
-sudo ./install.sh
-```
-
 ## Usage
 |        Command           |        Description             |
 |--------------------------|--------------------------------|
