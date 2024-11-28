@@ -35,7 +35,7 @@ class MySQL(GENERATOR):
         encode_user = encodehex(user)
         user_length = len(user)
         temp = user_length - 4
-        length = encodehex(chr(0xa3+temp))
+        length = encodehex(chr(0xa3 + temp))
 
         dump = length + "00000185a6ff0100000001210000000000000000000000000000000000000000000000"
         dump +=  encode_user
@@ -57,22 +57,35 @@ class MySQL(GENERATOR):
             query_length = encodehex(decodehex(query_length)[::-1])
             # query_length = query_length.decode[::-1].encode('hex')
             pay1 = query_length + "0003" + query
+            # print(query, query_length, pay1)
             final = encode(auth + pay1 + "0100000001")
             return final
         else:
             return encode(auth)
-        
-def encodehex( s):
+'''
+def encodehex(s):
     final = ""
     for c in s:
         final += hex(ord(c)).replace("0x", "")
     return final
+'''
+
+import binascii
+def encodehex(s):
+    return binascii.hexlify(s.encode('latin-1')).decode('latin-1')
+
+def decodehex(s):
+    # return bytes.fromhex(s).decode('latin-1')
+    return binascii.unhexlify(s).decode('latin-1')
+
+'''
 def decodehex( s):
     final = ""
     for i in range(0, len(s), 2):
-        final += chr(int(s[i:i+2], 16))
+        final += chr(int(s[i:i+1], 16))
     return final
-    
+'''
+
 def encode(s):
     a = [s[i:i + 2] for i in range(0, len(s), 2)]
-    return "%".join(a)
+    return  "%"+"%".join(a)
