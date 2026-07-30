@@ -35,7 +35,7 @@ def main():
     parser.add_argument("-v","--verbose", help="verbose mode", action="count", default=0)
     parser.add_argument("--dump", help="dump generator status", action="store_true")
     parser.add_argument("--slient", help="slient mode, stdout will only contain url", action="store_true")
-    parser.add_argument("--post", help="post processor type: line-n is \\n line-rn is \r\n end-with-00 is auto append 00 at End", choices=["line-n", "line-rn", "end-with-00"], default="line-n")
+    parser.add_argument("--post", help="post processor type: default preserves payload, line-n uses \\n, line-rn uses \\r\\n, end-with-00 appends 00", choices=piper_map.keys(), default="default")
     args, unknown = parser.parse_known_args()
 
     if not args.slient:
