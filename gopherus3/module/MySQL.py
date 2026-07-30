@@ -1,12 +1,11 @@
 from .base import *
 
 class MySQL(GENERATOR):
-    
+    default_port = 3306
     requirement = ["user", "query"]
-    def __init__(self, parser,options={}):
-        if options["port"] == 0:
-            options["port"] = 3306
-        super().__init__(parser,options)
+
+    def __init__(self, parser, options=None):
+        super().__init__(parser, options)
         print("\033[31m"+"For making it work username should not be password protected!!!"+ "\033[0m")
         self.set_requirement(self.requirement)
         arg = self.get_requirement()

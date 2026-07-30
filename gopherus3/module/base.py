@@ -1,38 +1,47 @@
-import urllib.parse
 import argparse
-
 import logging as log
 
 from enum import Enum
+from .encoding import percent_encode_bytes, quote_payload, quote_plus_payload
+
+
 class PAYLOAD_TYPE(Enum):
     NONE = "NONE"
     QUOTE_PLUS = "QUOTE_PLUS"
     QUOTE = "QUOTE"
+    QUOTE_SAFE = "QUOTE_SAFE"
     HEX = "HEX"
     HEX_UPCASE = "HEX_UPCASE"
+
 
 map_payload_type = {
     "NONE": PAYLOAD_TYPE.NONE,
     "QUOTE_PLUS": PAYLOAD_TYPE.QUOTE_PLUS,
     "QUOTE": PAYLOAD_TYPE.QUOTE,
+    "QUOTE_SAFE": PAYLOAD_TYPE.QUOTE_SAFE,
     "HEX": PAYLOAD_TYPE.HEX,
-    "HEX_UPCASE": PAYLOAD_TYPE.HEX_UPCASE
+    "HEX_UPCASE": PAYLOAD_TYPE.HEX_UPCASE,
 }
 
+
 class GENERATOR(object):
+    default_port = 12345
     default_options = {
-        "port": 12345,
+        "port": 0,
         "host": "127.1",
-        "requirement": [],
-        "mode": PAYLOAD_TYPE.QUOTE_PLUS
+        "mode": PAYLOAD_TYPE.QUOTE_PLUS,
     }
 
-    def __init__(self, parser, options=default_options):
-        self.arg_parser = parser
-        if options == {}:
-            self.options = self.default_options
-        for key in options:
-            self.__setattr__(key, options[key])
+    def __init__(self, parser=None, options=None):
+        self.arg_parser = parser or argparse.ArgumentParser(add_help=False)
+        normalized_options = dict(self.default_options)
+        if options:
+            normalized_options.update(options)
+        self.argv = normalized_options.pop("argv", None)
+        if normalized_options.get("port", 0) == 0:
+            normalized_options["port"] = self.default_port
+        for key, value in normalized_options.items():
+            self.__setattr__(key, value)
 
     def log(self, msg):
         log.debug(f"[{self.__class__.__name__}] {msg}")
@@ -46,12 +55,12 @@ class GENERATOR(object):
     def set_mode(self, mode=PAYLOAD_TYPE.QUOTE_PLUS):
         self.mode = mode
         return self
-    
+
     def set_mode_str(self, mode="QUOTE_PLUS"):
         return self.set_mode(map_payload_type[mode])
 
-    def set_requirement(self, requirement=[]):
-        self.requirement = requirement
+    def set_requirement(self, requirement=None):
+        self.requirement = list(requirement or [])
         for req in self.requirement:
             if req == "mode":
                 self.arg_parser.add_argument(f"--mode", help=f"mode value", default="QUOTE_PLUS", choices=map_payload_type.keys())
@@ -63,7 +72,7 @@ class GENERATOR(object):
         return self.arg_parser.print_help()
 
     def get_requirement(self):
-        args = self.arg_parser.parse_args()
+        args = self.arg_parser.parse_args(self.argv)
         if args.help:
             self.help()
             exit(0)
@@ -75,40 +84,45 @@ class GENERATOR(object):
         self.payload = self.payload.replace(key, value)
         log.debug(f"Payload after replace: {self.payload}")
         return self
-    
+
     def prefix(self, prefix):
         if not hasattr(self, "payload"):
             raise Exception("Payload not set, Cannot prefix")
         self.payload = prefix + self.payload
         return self
-    
+
     def suffix(self, suffix):
         if not hasattr(self, "payload"):
             raise Exception("Payload not set, Cannot suffix")
         self.payload = self.payload + suffix
         return self
 
-    def set_payload(self, payload):
+    def encode_payload(self, payload):
         mode = self.mode
-        self.raw_payload = payload
         if mode == PAYLOAD_TYPE.NONE:
-            self.payload = payload
-        elif mode == PAYLOAD_TYPE.QUOTE_PLUS:
-            self.payload = urllib.parse.quote_plus(payload)
-        elif mode == PAYLOAD_TYPE.QUOTE:
-            self.payload = urllib.parse.quote(payload)
-        elif mode == PAYLOAD_TYPE.HEX:
-            self.payload = ""
-            for c in payload:
-                self.payload += hex(ord(c)).replace("0x", "%")
-        elif mode == PAYLOAD_TYPE.HEX_UPCASE:
-            self.payload = ""
-            for c in payload:
-                self.payload += hex(ord(c)).replace("0x", "%").upper()
-        else:
-            log.error(f"Unknown mode: {mode}")
+            return payload if isinstance(payload, str) else payload.decode("latin-1")
+        if mode == PAYLOAD_TYPE.QUOTE_PLUS:
+            return quote_plus_payload(payload)
+        if mode == PAYLOAD_TYPE.QUOTE:
+            return quote_payload(payload, safe="/")
+        if mode == PAYLOAD_TYPE.QUOTE_SAFE:
+            return quote_payload(payload)
+        if mode == PAYLOAD_TYPE.HEX:
+            return percent_encode_bytes(payload)
+        if mode == PAYLOAD_TYPE.HEX_UPCASE:
+            return percent_encode_bytes(payload, uppercase=True)
+        log.error(f"Unknown mode: {mode}")
+        return payload
+
+    def set_payload(self, payload):
+        self.raw_payload = payload
+        self.payload = self.encode_payload(payload)
         self.log(f"Payload set to: {self.payload}")
         return self
+
+    def set_url_payload(self, payload):
+        self.set_mode(PAYLOAD_TYPE.QUOTE_SAFE)
+        return self.set_payload(payload)
 
     def generate(self):
         if not hasattr(self, "payload"):
@@ -117,7 +131,7 @@ class GENERATOR(object):
         generated = f"gopher://{self.host}:{self.port}/_{self.payload}"
         log.debug("Final Generated: " + generated)
         return generated
-     
+
     def debug_dump(self):
         for attr in self.__dict__.keys():
             self.log(f"{attr}: {self.__dict__[attr]}")

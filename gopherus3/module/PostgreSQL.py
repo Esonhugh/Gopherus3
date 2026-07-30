@@ -1,12 +1,12 @@
 from .base import *
+from .encoding import hexlify_text, percent_encode_hex
 
 class PostgreSQL(GENERATOR):
+    default_port = 5432
     requirement = ["user", "db", "query"]
-    
-    def __init__(self, parser,options={}):
-        if options["port"] == 0:
-            options["port"] = 5432
-        super().__init__(parser,options)
+
+    def __init__(self, parser, options=None):
+        super().__init__(parser, options)
         self.set_requirement(self.requirement)
         arg = self.get_requirement()
         if arg.user == "":
@@ -54,11 +54,8 @@ class PostgreSQL(GENERATOR):
         payload = super().generate()
         return payload
 
-def encodehex( s):
-    final = ""
-    for c in s:
-        final += hex(ord(c)).replace("0x", "")
-    return final
+def encodehex(s):
+    return hexlify_text(s)
 def decodehex(s):
     final = ""
     for i in range(0, len(s), 2):
@@ -66,5 +63,4 @@ def decodehex(s):
     return final
 
 def encode(s):
-	a = [s[i:i + 2] for i in range(0, len(s), 2)]
-	return "%" + "%".join(a)
+    return percent_encode_hex(s)

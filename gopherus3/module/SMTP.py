@@ -1,11 +1,11 @@
 from .base import *
 
 class SMTP(GENERATOR):
+    default_port = 25
     requirement = ["mailfrom", "mailto", "subject", "msg"]
-    def __init__(self, parser,options={}):
-        if options["port"] == 0:
-            options["port"] = 25
-        super().__init__(parser,options)
+
+    def __init__(self, parser, options=None):
+        super().__init__(parser, options)
         self.set_requirement(self.requirement)
         arg = self.get_requirement()
 
@@ -43,12 +43,8 @@ class SMTP(GENERATOR):
             'Message:' + msg,
             '.'
         ]
-        payload = "%0A".join(commands)
-        self.set_mode(PAYLOAD_TYPE.QUOTE_PLUS).\
-                set_payload(payload).\
-                replace("+", "%20").\
-                replace("%2F", "/").\
-                replace("%3A", ":")
+        payload = "\n".join(commands)
+        self.set_url_payload(payload)
         return super().generate()
     
     def wizard(self, field):

@@ -1,11 +1,11 @@
 from .base import *
 
 class FastCGI(GENERATOR):
-    requirement = ["targetfile","command"]
-    def __init__(self, parser,options={}):
-        if options["port"] == 0:
-            options["port"] = 9000
-        super().__init__(parser,options)
+    default_port = 9000
+    requirement = ["targetfile", "command"]
+
+    def __init__(self, parser, options=None):
+        super().__init__(parser, options)
         self.set_requirement(self.requirement)
         arg = self.get_requirement()
         if arg.targetfile == "":
@@ -48,9 +48,7 @@ class FastCGI(GENERATOR):
 
         payload = start + data + end
 
-        self.set_mode(PAYLOAD_TYPE.QUOTE_PLUS).set_payload(payload).\
-            replace("+", "%20").\
-            replace("%2F", "/")
+        self.set_url_payload(payload)
         return super().generate()
 
 

@@ -2,11 +2,11 @@ from .base import *
 import sys
 
 class PlainText(GENERATOR):
+    default_port = 25
     requirement = ["filename", "mode"]
-    def __init__(self, parser,options={}):
-        if options["port"] == 0:
-            options["port"] = 25
-        super().__init__(parser,options)
+
+    def __init__(self, parser, options=None):
+        super().__init__(parser, options)
         self.set_requirement(self.requirement)
         arg = self.get_requirement()
         if arg.filename == "":
@@ -16,16 +16,15 @@ class PlainText(GENERATOR):
         self.set_mode_str(arg.mode)
 
     def generate(self):
-        payload = readfile(self.filename) 
-        self.set_payload(payload).\
-            replace("+", "%20").\
-            replace("%2F", "/")
+        payload = readfile(self.filename)
+        if self.mode == PAYLOAD_TYPE.QUOTE_PLUS:
+            self.set_url_payload(payload)
+        else:
+            self.set_payload(payload)
         return super().generate()
 
-    def wizard(self):  
-        filename = input("\033[96m" +"Give the file name you want to read: "+ "\033[0m")
-        return filename
-        pass
+    def wizard(self):
+        return input("\033[96m" + "Give the file name you want to read: " + "\033[0m")
 
 
 def readfile(filename):
